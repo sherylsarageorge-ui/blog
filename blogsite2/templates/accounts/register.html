@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block title %}Register — ShareCanvas{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <h1>Create account</h1>
+  <p class="sub">Join ShareCanvas and start sharing your stories</p>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="grid2">
+      <div class="fg">
+        <label>First Name *</label>
+        <input type="text" name="first_name" id="id_first_name" value="{{ data.first_name }}">
+        <div class="err" id="err_first_name">{% if errors.first_name %}{{ errors.first_name }}{% endif %}</div>
+      </div>
+      <div class="fg">
+        <label>Last Name</label>
+        <input type="text" name="last_name" value="{{ data.last_name }}">
+      </div>
+    </div>
+    <div class="fg">
+      <label>Username *</label>
+      <input type="text" name="username" id="id_username" value="{{ data.username }}" autocomplete="off">
+      <div class="err" id="err_username">{% if errors.username %}{{ errors.username }}{% endif %}</div>
+    </div>
+    <div class="fg">
+      <label>Email *</label>
+      <input type="email" name="email" id="id_email" value="{{ data.email }}">
+      <div class="err" id="err_email">{% if errors.email %}{{ errors.email }}{% endif %}</div>
+    </div>
+    <div class="fg">
+      <label>Contact Number</label>
+      <input type="text" name="contact" id="id_contact" value="{{ data.contact }}" placeholder="10–15 digits">
+      <div class="err" id="err_contact">{% if errors.contact %}{{ errors.contact }}{% endif %}</div>
+    </div>
+    <div class="fg">
+      <label>Profile Picture</label>
+      <input type="file" name="profile_pic" accept="image/*">
+    </div>
+    <div class="fg">
+      <label>Password *</label>
+      <input type="password" name="password" id="id_password">
+      <div class="err" id="err_password">{% if errors.password %}{{ errors.password }}{% endif %}</div>
+    </div>
+    <div class="fg">
+      <label>Confirm Password *</label>
+      <input type="password" name="cpassword" id="id_cpassword">
+      <div class="err" id="err_cpassword">{% if errors.cpassword %}{{ errors.cpassword }}{% endif %}</div>
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Create Account</button>
+  </form>
+  <p style="margin-top:1rem;text-align:center;font-size:0.88rem;color:var(--muted)">
+    Already have an account? <a href="{% url 'login' %}" style="color:var(--accent)">Log in</a>
+  </p>
+</div>
+<script>
+function liveValidate(id, fn) {
+  var el = document.getElementById('id_' + id);
+  if (el) el.addEventListener('input', function() {
+    document.getElementById('err_' + id).textContent = fn(this.value);
+  });
+}
+liveValidate('username', function(v){ return v.trim().length < 3 ? 'At least 3 characters' : ''; });
+liveValidate('first_name', function(v){ return v.trim() === '' ? 'First name is required' : ''; });
+liveValidate('email', function(v){ return !/^[^@]+@[^@]+\.[^@]+$/.test(v) ? 'Enter a valid email' : ''; });
+liveValidate('contact', function(v){ return v && !/^\d{10,15}$/.test(v) ? 'Enter a valid contact (10–15 digits)' : ''; });
+liveValidate('password', function(v){ return v.length > 0 && v.length < 6 ? 'At least 6 characters' : ''; });
+document.getElementById('id_cpassword').addEventListener('input', function() {
+  var p = document.getElementById('id_password').value;
+  document.getElementById('err_cpassword').textContent = this.value && this.value !== p ? 'Passwords do not match' : '';
+});
+</script>
+{% endblock %}

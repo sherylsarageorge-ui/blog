@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}New Post — ShareCanvas{% endblock %}
+{% block content %}
+<div style="max-width:720px;margin:0 auto;">
+  <h1 style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;margin-bottom:2rem;">Write a new post</h1>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="fg">
+      <label>Title *</label>
+      <input type="text" name="title" value="{{ data.title }}" placeholder="Your post title" autofocus>
+      {% if errors.title %}<div class="err">{{ errors.title }}</div>{% endif %}
+    </div>
+    <div class="fg">
+      <label>Content *</label>
+      <textarea name="content" rows="15" placeholder="Write your story..." style="resize:vertical;">{{ data.content }}</textarea>
+      {% if errors.content %}<div class="err">{{ errors.content }}</div>{% endif %}
+    </div>
+    <div class="fg">
+      <label>Cover Image (optional)</label>
+      <input type="file" name="image" accept="image/*">    #restricts the file picker to images only.
+    </div>
+    <div style="display:flex;gap:0.75rem;">
+      <button type="submit" class="btn btn-primary">Publish</button>
+      <a href="{% url 'home' %}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

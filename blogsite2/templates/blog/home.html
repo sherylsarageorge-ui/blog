@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Feed — ShareCanvas{% endblock %}
+{% block content %}
+<div class="page-hdr">
+  <h1>The Feed</h1>
+  <a href="{% url 'create_post' %}" class="btn btn-primary">+ Write Post</a>
+</div>
+
+<form method="GET" class="search-row">    <!-- GET=retreive info-- this is accessed in home_view-->
+  <input type="text" name="q" value="{{ query }}" placeholder="Search posts or authors...">    <!--pre-fills search box with current query from home_view-->
+  <button type="submit" class="btn btn-primary">Search</button>
+  {% if query %}<a href="{% url 'home' %}" class="btn btn-outline">Clear</a>{% endif %}         <!--button appears only if there’s a query → resets the search-->
+</form>
+
+{% if query %}
+<p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.25rem">
+  Results for <strong>"{{ query }}"</strong>
+</p>
+{% endif %}
+
+{% if page.object_list %}    <!--page.object_list → the posts in the current page (from Paginator in home_view) If there are posts → display them-->
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.5rem">
+  {% for post in page.object_list %}      <!--Loops over each post in the current page-->
+  <article class="card" style="display:flex;flex-direction:column;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 30px rgba(15,14,12,0.13)'" onmouseout="this.style.transform='';this.style.boxShadow=''">  <!--Each <article> → individual post card-->
+    {% if post.image %}                  <!--If post has an image → display it , Else → display a small gradient bar for style-->
+    <img src="{{ post.image.url }}" alt="" style="width:100%;height:190px;object-fit:cover;">
+    {% else %}
+    <div style="height:6px;background:linear-gradient(90deg,var(--accent),var(--gold));"></div>
+    {% endif %}
+    <div style="padding:1.2rem;flex:1;display:flex;flex-direction:column;">
+      <p style="font-size:0.75rem;color:var(--muted);margin-bottom:0.6rem;">
+        <a href="{% url 'user_profile' post.author.username %}" style="color:var(--accent);font-weight:600;">{{ post.author.username }}</a>  <!--Shows author username as a link to profile, -->
+        &nbsp;·&nbsp;{{ post.created_at|date:"M d, Y" }} <!--Shows post date formatted as Month Day, Year,,,,|date:"M d, Y" → Django template filter-->
+      </p>
+      <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:700;line-height:1.35;margin-bottom:0.6rem;flex:1;">
+        <a href="{% url 'post_detail' post.id %}" style="color:var(--ink);">{{ post.title }}</a>  <!--Post title as a clickable link to post detail page-->
+      </h2>
+      <p style="font-size:0.85rem;color:var(--muted);line-height:1.65;margin-bottom:1rem;">{{ post.content|truncatewords:22 }}</p>  <!--Shows first 22 words of content,,,|truncatewords:22 → template filter to limit text length-->
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+        <a href="{% url 'post_detail' post.id %}" class="btn btn-outline btn-sm">Read →</a>
+        {% if post.author == user %}
+        <a href="{% url 'edit_post' post.id %}" class="btn btn-sm" style="background:var(--paper);border:1.5px solid var(--border);">Edit</a>
+        <a href="{% url 'delete_post' post.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete this post?')">Delete</a>
+        {% endif %}
+      </div>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+
+{% if page.has_other_pages %}  <!--Checks if multiple pages exist → display pagination controls-->
+<div class="pagination">
+  {% if page.has_previous %}<a href="?page={{ page.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">‹</a>{% endif %} <!--has_previous → True if current page is not the first page,, previous_page_number → the number of the previous page,,,?page={{ ... }} → URL query parameter to request that page,,,,{% if query %}&q={{ query }}{% endif %} → preserves search/filter query if it exists,,,,‹ → left arrow symbol for previous page-->
+  {% for n in page.paginator.page_range %}                      <!--Loop to display links for each page-->
+    {% if page.number == n %}<span class="cur">{{ n }}</span>   <!-- Highlights current page with <span class="cur"-->
+    {% else %}<a href="?page={{ n }}{% if query %}&q={{ query }}{% endif %}">{{ n }}</a>{% endif %}  <!--Other pages → clickable <a> tag linking to that page,,,Preserves search query if present-->
+  {% endfor %}
+  {% if page.has_next %}<a href="?page={{ page.next_page_number }}{% if query %}&q={{ query }}{% endif %}">›</a>{% endif %}  <!--has_next → True if current page is not the last page....next_page_number → number of the next page,,,,→ right arrow symbol-->
+</div>
+{% endif %}
+
+{% else %}                             <!-- if the query result not found-->
+<div style="text-align:center;padding:5rem 2rem;color:var(--muted);">
+  <p style="font-family:'Cormorant Garamond',serif;font-size:1.8rem;margin-bottom:0.5rem;">
+    {% if query %}No results found{% else %}The feed is empty{% endif %}   <!--  checks whether the user searched for something:,,,,If they did → show "No results found",,,If no post is there till now → show "The feed is empty"-->
+  </p>
+  <p style="font-size:0.88rem;">{% if query %}Try a different search{% else %}<a href="{% url 'create_post' %}" style="color:var(--accent);">Write the first post</a>{% endif %}</p>   <!--secondary message- and write first post will come if there is no posts till now-->
+</div>
+
+{% endif %}
+
+
+{% endblock %}
+
+ <!-- Summary / What it does
+Only shows pagination if more than one page exists.
+Shows Previous ‹ if not on the first page.
+Loops through all page numbers and highlights the current page.
+Shows Next › if not on the last page.
+Preserves the search query (q) in all links.
+Displays centered message when there are no posts or search results.
+Dynamically changes the message depending on whether the user searched (query) or just visiting the feed.
+Provides guidance for the user:
+“Try a different search”
+Or “Write the first post” with a link -->

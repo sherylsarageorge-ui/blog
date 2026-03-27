@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Comments — Admin{% endblock %}
+{% block content %}
+<div class="page-hdr">
+  <h1>Comments</h1>
+  <a href="{% url 'admin_dashboard' %}" class="btn btn-outline btn-sm">← Dashboard</a>
+</div>
+
+<form method="GET" class="search-row">
+  <input type="text" name="q" value="{{ query }}" placeholder="Search by content, author, or post title...">
+  <button type="submit" class="btn btn-primary btn-sm">Search</button>
+  {% if query %}<a href="{% url 'admin_comments' %}" class="btn btn-outline btn-sm">Clear</a>{% endif %}
+</form>
+
+<div class="card" style="overflow-x:auto;">
+  <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+    <thead>
+      <tr style="background:var(--ink);color:var(--paper);">
+        <th style="padding:0.75rem 1rem;text-align:left;">Comment</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Author</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Post</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Date</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for comment in comments %}
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:0.7rem 1rem;max-width:280px;">{{ comment.content|truncatechars:80 }}</td>
+        <td style="padding:0.7rem 1rem;">
+          <a href="{% url 'user_profile' comment.author.username %}" style="color:var(--accent);">{{ comment.author.username }}</a>
+        </td>
+        <td style="padding:0.7rem 1rem;">
+          <a href="{% url 'post_detail' comment.post.id %}" style="color:var(--accent2);">{{ comment.post.title|truncatechars:35 }}</a>
+        </td>
+        <td style="padding:0.7rem 1rem;color:var(--muted);">{{ comment.created_at|date:"M d, Y" }}</td>
+        <td style="padding:0.7rem 1rem;">
+          <a href="{% url 'admin_delete_comment' comment.id %}" class="btn btn-danger btn-sm"
+             onclick="return confirm('Delete this comment?')">Delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" style="padding:1.5rem;text-align:center;color:var(--muted);">No comments found</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

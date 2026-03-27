@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Login — ShareCanvas{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <h1>Welcome back</h1>
+  <p class="sub">Log in to your ShareCanvas account</p>
+  <form method="POST">
+    {% csrf_token %}
+    <div class="fg">
+      <label>Username</label>
+      <input type="text" name="username" autofocus>
+    </div>
+    <div class="fg">
+      <label>Password</label>
+      <input type="password" name="password">
+    </div>
+    <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center">Log In</button>
+  </form>
+  <p style="margin-top:1rem;text-align:center;font-size:0.88rem;color:var(--muted)">
+    <a href="{% url 'forgot_password' %}" style="color:var(--accent)">Forgot password?</a>
+    &nbsp;·&nbsp;
+    <a href="{% url 'register' %}" style="color:var(--accent)">Create account</a>
+  </p>
+</div>
+{% endblock %}

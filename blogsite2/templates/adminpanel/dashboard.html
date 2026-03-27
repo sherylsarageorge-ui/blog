@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Admin Panel — ShareCanvas{% endblock %}
+{% block content %}
+<div class="page-hdr">
+  <h1>Admin Panel</h1>
+  <a href="{% url 'admin_comments' %}" class="btn btn-outline btn-sm">View Comments</a>
+</div>
+
+<!-- Stats -->
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem;">
+  {% for label,val in stats %}
+  <div class="card" style="padding:1.25rem;text-align:center;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:700;color:var(--accent);">{{ val }}</div>
+    <div style="font-size:0.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;">{{ label }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Users -->
+<h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:0.75rem;">Users</h2>
+<form method="GET" class="search-row" style="margin-bottom:1rem;">
+  <input type="hidden" name="pq" value="{{ post_query }}">
+  <input type="text" name="uq" value="{{ user_query }}" placeholder="Search by username or email...">
+  <button type="submit" class="btn btn-primary btn-sm">Search</button>
+  {% if user_query %}<a href="?pq={{ post_query }}" class="btn btn-outline btn-sm">Clear</a>{% endif %}
+</form>
+<div class="card" style="margin-bottom:2rem;overflow-x:auto;">
+  <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+    <thead>
+      <tr style="background:var(--ink);color:var(--paper);">
+        <th style="padding:0.75rem 1rem;text-align:left;">Username</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Email</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Joined</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Status</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:0.7rem 1rem;font-weight:500;">
+          <a href="{% url 'user_profile' u.username %}" style="color:var(--accent);">{{ u.username }}</a>
+        </td>
+        <td style="padding:0.7rem 1rem;color:var(--muted);">{{ u.email }}</td>
+        <td style="padding:0.7rem 1rem;color:var(--muted);">{{ u.date_joined|date:"M d, Y" }}</td>
+        <td style="padding:0.7rem 1rem;">
+          {% if u.profile.is_blocked %}
+          <span style="background:#fdecea;color:#b71c1c;padding:0.2rem 0.65rem;border-radius:12px;font-size:0.75rem;font-weight:600;">Blocked</span>
+          {% else %}
+          <span style="background:#e8f5e9;color:#2e7d32;padding:0.2rem 0.65rem;border-radius:12px;font-size:0.75rem;font-weight:600;">Active</span>
+          {% endif %}
+        </td>
+        <td style="padding:0.7rem 1rem;">
+          <div style="display:flex;gap:0.4rem;">
+            <a href="{% url 'admin_block_user' u.id %}" class="btn btn-warn btn-sm">
+              {% if u.profile.is_blocked %}Unblock{% else %}Block{% endif %}
+            </a>
+            <a href="{% url 'admin_delete_user' u.id %}" class="btn btn-danger btn-sm"
+               onclick="return confirm('Permanently delete {{ u.username }}?')">Delete</a>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5" style="padding:1.5rem;text-align:center;color:var(--muted);">No users found</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Posts -->
+<h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:0.75rem;">Posts</h2>
+<form method="GET" class="search-row" style="margin-bottom:1rem;">
+  <input type="hidden" name="uq" value="{{ user_query }}">
+  <input type="text" name="pq" value="{{ post_query }}" placeholder="Search by title or author...">
+  <button type="submit" class="btn btn-primary btn-sm">Search</button>
+  {% if post_query %}<a href="?uq={{ user_query }}" class="btn btn-outline btn-sm">Clear</a>{% endif %}
+</form>
+<div class="card" style="overflow-x:auto;">
+  <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+    <thead>
+      <tr style="background:var(--ink);color:var(--paper);">
+        <th style="padding:0.75rem 1rem;text-align:left;">Title</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Author</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Date</th>
+        <th style="padding:0.75rem 1rem;text-align:left;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for post in posts %}
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:0.7rem 1rem;">
+          <a href="{% url 'post_detail' post.id %}" style="color:var(--accent);">{{ post.title|truncatechars:55 }}</a>
+        </td>
+        <td style="padding:0.7rem 1rem;color:var(--muted);">{{ post.author.username }}</td>
+        <td style="padding:0.7rem 1rem;color:var(--muted);">{{ post.created_at|date:"M d, Y" }}</td>
+        <td style="padding:0.7rem 1rem;">
+          <div style="display:flex;gap:0.4rem;">
+            <a href="{% url 'admin_edit_post' post.id %}" class="btn btn-outline btn-sm">Edit</a>
+            <a href="{% url 'admin_delete_post' post.id %}" class="btn btn-danger btn-sm"
+               onclick="return confirm('Delete this post?')">Delete</a>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="4" style="padding:1.5rem;text-align:center;color:var(--muted);">No posts found</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

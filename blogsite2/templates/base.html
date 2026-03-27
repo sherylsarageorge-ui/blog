@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}ShareCanvas{% endblock %}</title>           <!--so child templates can override it-->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #0f0e0c;
+  --paper: #f7f3ed;
+  --cream: #faf8f4;
+  --accent: #b5451b;
+  --accent2: #2a6496;
+  --gold: #c9a84c;
+  --muted: #7a7060;
+  --border: #e2dbd0;
+  --card: #ffffff;
+  --shadow: 0 2px 20px rgba(15,14,12,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Jost',sans-serif;background:#E6E6FA;color:var(--ink);min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+
+nav{background:var(--ink);height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100;}
+.nav-brand{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--paper);letter-spacing:1px;}
+.nav-brand em{color:#6f42c1;font-style:normal;}
+.nav-links{display:flex;align-items:center;gap:1.5rem;}
+.nav-links a{color:#9a9080;font-size:0.88rem;font-weight:500;letter-spacing:0.3px;transition:color 0.2s;}
+.nav-links a:hover{color:var(--paper);}
+.nav-pill{background:#6f42c1;color:#fff !important;padding:0.35rem 1rem;border-radius:20px;font-size:0.82rem !important;}
+.nav-pill:hover{background:#922f10 !important;}
+
+.messages-wrap{max-width:1100px;margin:0.75rem auto;padding:0 1.5rem;}
+.msg{padding:0.7rem 1rem;border-radius:6px;font-size:0.88rem;margin-bottom:0.4rem;}
+.msg-success{background:#e8f5e9;color:#2e7d32;border-left:3px solid #4caf50;}
+.msg-error{background:#fdecea;color:#b71c1c;border-left:3px solid #ef5350;}
+
+main{max-width:1100px;margin:0 auto;padding:2rem 1.5rem;}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);}
+.page-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;padding-bottom:1rem;border-bottom:2px solid var(--border);}
+.page-hdr h1{font-family:'Cormorant Garamond',serif;font-size:2.1rem;font-weight:700;}
+
+.form-wrap{max-width:500px;margin:2.5rem auto;}
+.form-wrap h1{font-family:'Cormorant Garamond',serif;font-size:2.2rem;margin-bottom:0.2rem;}
+.form-wrap .sub{color:var(--muted);font-size:0.88rem;margin-bottom:2rem;}
+.fg{margin-bottom:1.2rem;}
+.fg label{display:block;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--muted);margin-bottom:0.35rem;}
+.fg input,.fg textarea,.fg select{width:100%;padding:0.6rem 0.85rem;border:1.5px solid var(--border);border-radius:6px;font-family:'Jost',sans-serif;font-size:0.92rem;background:var(--paper);color:var(--ink);transition:border-color 0.2s;}
+.fg input:focus,.fg textarea:focus{outline:none;border-color:var(--accent);}
+.fg .err{color:var(--accent);font-size:0.78rem;margin-top:0.3rem;}
+.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1.4rem;border-radius:6px;font-weight:500;font-size:0.88rem;cursor:pointer;border:none;transition:all 0.2s;font-family:'Jost',sans-serif;letter-spacing:0.2px;}
+.btn-primary{background:#6f42c1;color:white;}
+.btn-primary:hover{background:#922f10;}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--ink);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-danger{background:#dc3545;color:white;}
+.btn-danger:hover{background:#b02a37;}
+.btn-warn{background:var(--gold);color:white;}
+.btn-warn:hover{background:#a8872e;}
+.btn-sm{padding:0.3rem 0.75rem;font-size:0.78rem;}
+
+.search-row{display:flex;gap:0.5rem;margin-bottom:1.5rem;}
+.search-row input{flex:1;padding:0.55rem 1rem;border:1.5px solid var(--border);border-radius:6px;font-family:'Jost',sans-serif;font-size:0.9rem;background:var(--paper);}
+.search-row input:focus{outline:none;border-color:var(--accent);}
+
+.pagination{display:flex;gap:0.35rem;justify-content:center;margin-top:2.5rem;}
+.pagination a,.pagination span{padding:0.35rem 0.8rem;border:1.5px solid var(--border);border-radius:4px;font-size:0.82rem;color:var(--muted);}
+.pagination a:hover{border-color:var(--accent);color:var(--accent);}
+.pagination .cur{background:var(--accent);color:white;border-color:var(--accent);}
+.divider{height:1px;background:var(--border);margin:1.5rem 0;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:600px){.grid2{grid-template-columns:1fr;}.nav-links a:not(.nav-pill):not(:last-child){display:none;}}
+</style>
+{% block extra_css %}{% endblock %}         <!--child templates can override with extra css-->
+</head>
+<body>
+<nav>
+  <a href="{% url 'home' %}" class="nav-brand">Share<em>Canvas</em></a>
+  <div class="nav-links">
+    {% if user.is_authenticated %}            <!--shows links depending on whether the user is logged in-->
+      <a href="{% url 'home' %}">Feed</a>
+      <a href="{% url 'create_post' %}">Write</a>
+      <a href="{% url 'profile' %}">{{ user.username }}</a>
+      {% if user.is_staff %}<a href="{% url 'admin_dashboard' %}">Admin</a>{% endif %}            <!--shows admin link only if admin logs in-->
+      <a href="{% url 'logout' %}" class="nav-pill">Logout</a>
+    {% else %}                                   <!--Login/Register links for unauthenticated users-->
+      <a href="{% url 'login' %}">Login</a>
+      <a href="{% url 'register' %}" class="nav-pill">Join</a>
+    {% endif %}
+  </div>
+</nav>
+
+{% if messages %}
+<div class="messages-wrap">
+  {% for msg in messages %}
+  <div class="msg msg-{% if msg.tags == 'error' %}error{% else %}success{% endif %}">{{ msg }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<main>{% block content %}{% endblock %}</main>      <!--main content area where child content will come-->
+</body>
+</html>

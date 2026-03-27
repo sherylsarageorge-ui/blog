@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}{{ post.title }} — ShareCanvas{% endblock %}
+{% block content %}
+<div style="max-width:760px;margin:0 auto;">
+  {% if post.image %}
+  <img src="{{ post.image.url }}" alt="" style="width:100%;height:380px;object-fit:cover;border-radius:10px;margin-bottom:2rem;">
+  {% endif %}
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+    <span style="font-size:0.82rem;color:var(--muted);">
+      By <a href="{% url 'user_profile' post.author.username %}" style="color:var(--accent);font-weight:600;">{{ post.author.username }}</a>
+      &nbsp;·&nbsp;{{ post.created_at|date:"F d, Y" }}
+    </span>
+    {% if post.author == user %}
+    <div style="display:flex;gap:0.4rem;">
+      <a href="{% url 'edit_post' post.id %}" class="btn btn-outline btn-sm">Edit</a>
+      <a href="{% url 'delete_post' post.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">Delete</a>
+    </div>
+    {% endif %}
+  </div>
+  <h1 style="font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:700;line-height:1.25;margin-bottom:1.5rem;">{{ post.title }}</h1>
+  <div style="font-size:1rem;line-height:1.9;color:#2a2620;white-space:pre-line;">{{ post.content }}</div>
+
+  <div class="divider" style="margin:2.5rem 0;"></div>
+
+  <h2 style="font-family:'Cormorant Garamond',serif;font-size:1.5rem;margin-bottom:1.5rem;">Comments ({{ comments.count }})</h2>
+
+  {% for comment in comments %}
+  <div style="padding:1rem 1.1rem;border:1px solid var(--border);border-radius:8px;margin-bottom:0.9rem;background:var(--paper);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.45rem;flex-wrap:wrap;gap:0.4rem;">
+      <span style="font-size:0.82rem;">
+        <a href="{% url 'user_profile' comment.author.username %}" style="color:var(--accent);font-weight:600;">{{ comment.author.username }}</a>
+        <span style="color:var(--muted);"> · {{ comment.created_at|date:"M d, Y" }}</span>
+      </span>
+      {% if comment.author == user %}
+      <div style="display:flex;gap:0.35rem;">
+        <a href="{% url 'edit_comment' comment.id %}" class="btn btn-outline btn-sm">Edit</a>
+        <a href="{% url 'delete_comment' comment.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete comment?')">Delete</a>
+      </div>
+      {% endif %}
+    </div>
+    <p style="font-size:0.9rem;line-height:1.65;">{{ comment.content }}</p>
+  </div>
+  {% empty %}
+  <p style="color:var(--muted);font-size:0.88rem;">No comments yet — be the first!</p>
+  {% endfor %}
+
+  <div style="margin-top:1.75rem;">
+    <h3 style="font-size:0.95rem;font-weight:600;margin-bottom:0.75rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);">Leave a comment</h3>
+    <form method="POST">
+      {% csrf_token %}
+      <div class="fg">
+        <textarea name="content" rows="4" placeholder="Share your thoughts..." style="resize:vertical;"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Post Comment</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

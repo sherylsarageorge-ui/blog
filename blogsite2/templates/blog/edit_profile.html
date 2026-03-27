@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Edit Profile — ShareCanvas{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <h1>Edit Profile</h1>
+  <p class="sub">Update your personal information</p>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="grid2">
+      <div class="fg"><label>First Name</label><input type="text" name="first_name" value="{{ user.first_name }}"></div>
+      <div class="fg"><label>Last Name</label><input type="text" name="last_name" value="{{ user.last_name }}"></div>
+    </div>
+    <div class="fg"><label>Email</label><input type="email" name="email" value="{{ user.email }}"></div>
+    <div class="fg"><label>Contact Number</label><input type="text" name="contact" value="{{ profile.contact_number }}"></div>
+    <div class="fg"><label>Bio</label><textarea name="bio" rows="3">{{ profile.bio }}</textarea></div>
+    <div class="fg">
+      <label>Profile Picture</label>
+      {% if profile.profile_pic %}<img src="{{ profile.profile_pic.url }}" style="display:block;width:60px;height:60px;border-radius:50%;object-fit:cover;margin-bottom:0.5rem;">{% endif %}
+      <input type="file" name="profile_pic" accept="image/*">
+    </div>
+    <div style="display:flex;gap:0.75rem;">
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a href="{% url 'profile' %}" class="btn btn-outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
